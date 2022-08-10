@@ -4,7 +4,7 @@
 
 Ejercicio Práctico BackEnd Developer de Banco Pichincha
 
- - [ ] Ejercicio 1
+ - [X] Ejercicio 1
  - [ ] Ejercicio 2
  - [ ] Ejercicio 3
  - [ ] Ejercicio 4
@@ -27,6 +27,9 @@ $ npm run start:dev
 
 # production mode
 $ npm run start:prod
+
+# mock repositories service
+$ npm run mockServer
 ```
 
 ## Test
