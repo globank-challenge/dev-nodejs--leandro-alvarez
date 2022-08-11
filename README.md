@@ -5,7 +5,7 @@
 Ejercicio Práctico BackEnd Developer de Banco Pichincha
 
  - [X] Ejercicio 1
- - [ ] Ejercicio 2
+ - [X] Ejercicio 2
  - [ ] Ejercicio 3
  - [ ] Ejercicio 4
 

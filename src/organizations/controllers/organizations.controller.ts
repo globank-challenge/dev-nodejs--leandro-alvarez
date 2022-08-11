@@ -1,11 +1,11 @@
-import { Controller,Get,Query,Param,Body,Post,Put,Delete,HttpCode,HttpStatus,ParseIntPipe  } from '@nestjs/common';
+import { Controller, Get, Query, Param, Body, Post, Put, Delete, HttpCode, HttpStatus, ParseIntPipe } from '@nestjs/common';
 
 import { OrganizationsService } from './../services/organizations.service';
 import { CreateOrganizationDto, UpdateOrganizationDto } from './../dtos/organizations.dto';
 
 @Controller('organizations')
 export class OrganizationsController {
-  constructor(private organizationsService: OrganizationsService) {}
+  constructor(private organizationsService: OrganizationsService) { }
 
   @Get()
   getProducts() {
@@ -14,7 +14,7 @@ export class OrganizationsController {
 
   @Get(':organizationId')
   @HttpCode(HttpStatus.ACCEPTED)
-  getOne(@Param('organizationId',ParseIntPipe) organizationId: number) {
+  getOne(@Param('organizationId', ParseIntPipe) organizationId: number) {
     return this.organizationsService.findOne(organizationId);
   }
 
@@ -24,12 +24,12 @@ export class OrganizationsController {
   }
 
   @Put(':organizationId')
-  update(@Param('organizationId',ParseIntPipe) organizationId: number, @Body() payload: UpdateOrganizationDto) {
+  update(@Param('organizationId', ParseIntPipe) organizationId: number, @Body() payload: UpdateOrganizationDto) {
     return this.organizationsService.update(organizationId, payload);
   }
 
   @Delete(':organizationId')
-  delete(@Param('organizationId',ParseIntPipe) organizationId: number) {
+  delete(@Param('organizationId', ParseIntPipe) organizationId: number) {
     return this.organizationsService.remove(organizationId);
   }
 
