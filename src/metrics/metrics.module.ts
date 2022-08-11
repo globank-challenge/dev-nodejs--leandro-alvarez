@@ -11,6 +11,7 @@ import {RepositoriesModule} from './../repositories/repositories.module'
   imports: [RepositoriesModule,TypeOrmModule.forFeature([Metrics])],
   controllers: [MetricsController],
   providers: [MetricsService],
+  exports: [MetricsService]
 
 })
 export class MetricsModule {}

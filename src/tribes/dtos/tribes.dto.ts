@@ -15,6 +15,11 @@ export class CreateTribeDto {
   @IsNotEmpty()
   @IsPositive()
   readonly status: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  @IsPositive()
+  readonly idOrganization : number
 }
 
 export class UpdateTribeDto extends PartialType(CreateTribeDto) {}

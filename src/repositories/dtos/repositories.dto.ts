@@ -3,7 +3,8 @@ import {
   IsNumber,
   IsNotEmpty,
   IsPositive,
-} from 'class-validator';
+  IsEnum
+} from '@nestjs/class-validator';
 
 enum repoStates {
   ENABLE = 'E',
@@ -17,17 +18,28 @@ enum registerStates {
 }
 
 import { PartialType, OmitType } from '@nestjs/mapped-types';
+import { IsOptional } from 'class-validator';
 
 export class CreateRepositoryDto {
+  @IsNotEmpty()
+  @IsNumber()
+  readonly tribeId : number;
+
   @IsString()
   @IsNotEmpty()
   readonly name: string;
 
   @IsNotEmpty()
+  @IsEnum(repoStates)
   readonly state: repoStates;
 
   @IsNotEmpty()
+  @IsEnum(registerStates)
   readonly status:registerStates;
+
+  @IsOptional()
+  readonly metricId:number;
+
 }
 
 export class UpdateRepositoryDto extends PartialType(CreateRepositoryDto) {}

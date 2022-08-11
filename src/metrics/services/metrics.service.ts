@@ -15,13 +15,18 @@ export class MetricsService {
 
 
   async create(data: CreateMetricsDto) {
+    const newMetrics = this.metricsRepo.create(data);
+
     const repository = await this.repositoriesService.findOne(data.id_repository);
     if (!repository) {
       throw new NotFoundException(`Repository #${data.id_repository} not found`);
     }
-    const newMetrics = this.metricsRepo.create(data);
+    newMetrics.repository =repository;
+
     return this.metricsRepo.save(newMetrics);
   }
+
+
 
   findAll() {
     //return this.organizations;

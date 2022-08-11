@@ -4,7 +4,8 @@ import {
   IsNotEmpty,
   IsPositive,
   IsDecimal,
-  IsOptional
+  IsOptional,
+  Max
 } from 'class-validator';
 
 import { PartialType, OmitType } from '@nestjs/mapped-types';
@@ -16,32 +17,30 @@ export class CreateMetricsDto {
   readonly id_repository: number;
 
   @IsNotEmpty()
-  @IsDecimal()
+  //@IsDecimal()
+  //@IsDecimal()
   @IsPositive()
   @IsOptional()
+  @Max(100)
   readonly coverage: number;
 
   @IsNotEmpty()
   @IsNumber()
-  @IsPositive()
   @IsOptional()
   readonly bugs: number;
 
   @IsNotEmpty()
   @IsNumber()
-  @IsPositive()
   @IsOptional()
   readonly vulnerabilities: number;
 
   @IsNotEmpty()
   @IsNumber()
-  @IsPositive()
   @IsOptional()
   readonly hostpot: number;
 
   @IsNotEmpty()
   @IsNumber()
-  @IsPositive()
   @IsOptional()
   readonly code_smells: number;
 }

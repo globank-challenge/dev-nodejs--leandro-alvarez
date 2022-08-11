@@ -20,7 +20,11 @@ export class OrganizationsService {
 
   findAll() {
     //return this.organizations;
-    return this.organizationRepo.find();
+    return this.organizationRepo.find(
+      {
+        relations: ['tribes'],
+      }
+    );
   }
 
   async findOne(id: number) {

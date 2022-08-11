@@ -1,4 +1,16 @@
-import { Controller, Get, Query, Param, Body, Post, Put, Delete, HttpCode, HttpStatus, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  Param,
+  Body,
+  Post,
+  Put,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  ParseIntPipe
+} from '@nestjs/common';
 
 import { TribesService } from '../services/tribes.service';
 import { CreateTribeDto, UpdateTribeDto } from '../dtos/tribes.dto';
@@ -11,7 +23,7 @@ export class TribesController {
   getTribues() {
     return this.tribesService.findAll();
   }
-
+  //aquí
   @Get(':tribeId')
   @HttpCode(HttpStatus.ACCEPTED)
   getOne(@Param('tribeId', ParseIntPipe) tribeId: number) {
