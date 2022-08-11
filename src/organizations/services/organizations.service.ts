@@ -13,8 +13,8 @@ export class OrganizationsService {
 
 
   create(data: CreateOrganizationDto) {
-    const newProduct = this.organizationRepo.create(data);
-    return this.organizationRepo.save(newProduct);
+    const newOrganization = this.organizationRepo.create(data);
+    return this.organizationRepo.save(newOrganization);
 
   }
 

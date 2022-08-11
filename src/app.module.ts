@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
+import {ConfigModule} from '@nestjs/config'
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import {OrganizationsModule} from './organizations/organizations.module'
-import {ConfigModule} from '@nestjs/config'
-import { DatabaseModule } from './database/database.module';
 
+import {OrganizationsModule} from './organizations/organizations.module'
+import {TribesModule} from './tribes/tribes.module'
+import {RepositoriesModule} from './repositories/repositories.module'
+import {MetricsModule} from './metrics/metrics.module'
+import { DatabaseModule } from './database/database.module';
 import { enviroments } from './enviroments';
 import config from './config';
 
@@ -15,7 +18,11 @@ import config from './config';
     isGlobal: true,
   }),
   DatabaseModule,
-    OrganizationsModule],
+  OrganizationsModule,
+  TribesModule,
+  RepositoriesModule,
+  MetricsModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
