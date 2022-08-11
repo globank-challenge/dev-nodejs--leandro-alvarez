@@ -21,7 +21,7 @@ import { HttpModule, HttpService } from '@nestjs/axios';
       provide: 'TASKS',
       useFactory: async (http: HttpService) => {
         const tasks = await http
-          .get('http://localhost:3004/repositories')
+          .get(process.env.MOCK_API)
           .toPromise();
         return tasks.data;
       },

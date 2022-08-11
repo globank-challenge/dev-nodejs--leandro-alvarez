@@ -4,7 +4,7 @@ import {
   IsNotEmpty,
   IsPositive,
 } from 'class-validator';
-import { PartialType, OmitType } from '@nestjs/mapped-types';
+import { PartialType }  from '@nestjs/swagger';
 
 export class CreateOrganizationDto {
   @IsString()

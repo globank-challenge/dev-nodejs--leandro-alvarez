@@ -2,7 +2,9 @@ import { Controller, Get, Query, Param, Body, Post, Put, Delete, HttpCode, HttpS
 
 import { MetricsService } from '../services/metrics.service';
 import { CreateMetricsDto, UpdateMetricsDto } from '../dtos/metrics.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Entidad Metrics')
 @Controller('metrics')
 export class MetricsController {
   constructor(private metricsService: MetricsService) { }

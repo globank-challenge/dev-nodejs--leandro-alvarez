@@ -2,7 +2,9 @@ import { Controller, Get, Query, Param, Body, Post, Put, Delete, HttpCode, HttpS
 
 import { OrganizationsService } from './../services/organizations.service';
 import { CreateOrganizationDto, UpdateOrganizationDto } from './../dtos/organizations.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Entidad Organizations')
 @Controller('organizations')
 export class OrganizationsController {
   constructor(private organizationsService: OrganizationsService) { }

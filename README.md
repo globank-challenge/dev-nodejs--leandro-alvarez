@@ -6,8 +6,8 @@ Ejercicio Práctico BackEnd Developer de Banco Pichincha
 
  - [X] Ejercicio 1
  - [X] Ejercicio 2
- - [ ] Ejercicio 3
- - [ ] Ejercicio 4
+ - [X] Ejercicio 3
+ - [X] Ejercicio 4
 
 
 ## Installation
@@ -30,6 +30,10 @@ $ npm run start:prod
 
 # mock repositories service
 $ npm run mockServer
+$ <http://localhost:3004>/repositories
+
+# documentacion
+$ <http://localhost:3000>/api
 ```
 
 ## Test

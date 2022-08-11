@@ -14,7 +14,9 @@ import {
 
 import { TribesService } from '../services/tribes.service';
 import { CreateTribeDto, UpdateTribeDto } from '../dtos/tribes.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Entidad Tribes')
 @Controller('tribes')
 export class TribesController {
   constructor(private tribesService: TribesService) { }

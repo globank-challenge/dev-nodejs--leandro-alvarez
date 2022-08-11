@@ -2,7 +2,9 @@ import { Controller, Get, Query, Param, Body, Post, Put, Delete, HttpCode, HttpS
 
 import { RepositoriesService } from '../services/repositories.service';
 import { CreateRepositoryDto, UpdateRepositoryDto } from '../dtos/repositories.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Entidad Repositories')
 @Controller('repositories')
 export class RepositoriesController {
   constructor(private repositoriesService: RepositoriesService) { }

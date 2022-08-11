@@ -17,7 +17,7 @@ enum registerStates {
   INACTIVE = 'I',
 }
 
-import { PartialType, OmitType } from '@nestjs/mapped-types';
+import { PartialType } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
 
 export class CreateRepositoryDto {
