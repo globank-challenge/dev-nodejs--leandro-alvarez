@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Equal, Repository, MoreThan } from 'typeorm';
+import { Equal, Repository, MoreThan, Between } from 'typeorm';
 import fs from 'fs';
 import { parse } from 'json2csv';
 
@@ -11,18 +11,21 @@ import { CreateRepositoryDto, UpdateRepositoryDto } from '../dtos/repositories.d
 import { TribesService } from './../../tribes/services/tribes.service'
 import { json } from 'stream/consumers';
 
+
 @Injectable()
 export class RepositoriesService {
   constructor(
     @InjectRepository(Repositories) private repositoriesRepo: Repository<Repositories>,
-    @Inject('TASKS') private tasks: any[],
+    @Inject('MockRepositories') private mockRepos: any[],
+    @Inject('MockRepositories2') private mockRepos2: any[],
     private tribesService: TribesService,
 
   ) { }
 
 
+
   getApiRepositorios(): string {
-    var res = this.tasks
+    var res = this.mockRepos
     return `${res}`;
   }
 
@@ -81,30 +84,12 @@ export class RepositoriesService {
 
   async getMetrics(idTribu: number) {
 
-
-    var mockRepositorios = this.tasks
-    const tribe = await this.tribesService.findOne(idTribu);
-    if (!tribe) {
-      throw new NotFoundException(`La Tribu no se encuentra registrada`);
-    }
-
-    var metricas = await this.repositoriesRepo.find({
-      relations: ['tribe', 'metrics', 'tribe.organization'],
-      where: {
-        tribe: {
-          id_tribe: idTribu,
-        },
-        metrics: {
-          coverage: MoreThan(75),
-        },
-        state: repoStates.ENABLE,
-      },
-
-    });
-
-    if (!metricas) {
-      throw new NotFoundException(`La Tribu no tiene repositorios que cumplan con la cobertura necesaria`);
-    }
+    const verificationCode = [
+      //{ code: 0, state: "No encontrado" },
+      { code: 604, state: "Verificado" },
+      { code: 605, state: "En espera" },
+      { code: 606, state: "Aprobado" },
+    ]
 
     interface ModelResponse {
       id: string;
@@ -119,9 +104,62 @@ export class RepositoriesService {
       verificationState: string;
       state: string;
     }
+
+    const minCoverage: number = 75;
+    const thisYear: number = new Date().getFullYear()
+    const dateFrom = new Date(thisYear, 1, 1)
+    const dateTo = new Date(thisYear, 12, 31)
+
+    const dataMock: any = JSON.parse(JSON.stringify(this.mockRepos));
+    const searchMock: number = dataMock?.find((repo) => repo.id == idTribu)?.state || 0
+    const stateRepositoryMock: string = verificationCode.find((code) => code.code == searchMock)?.state || "No encontrado"
+
+
+    const tribe = await this.tribesService.findOne(idTribu);
+    if (!tribe) {
+      throw new NotFoundException(`La Tribu no se encuentra registrada`);
+    }
+
+    const metricas: Repositories[] = await this.repositoriesRepo.find({
+      relations: ['tribe', 'metrics', 'tribe.organization'],
+      select: {
+        id_repository: true,
+        name: true,
+        tribe: {
+          name: true,
+          organization: {
+            name: true,
+          }
+        },
+        metrics: {
+          coverage: true,
+          code_smells: true,
+          bugs: true,
+          vulnerabilities: true,
+          hostpot: true,
+        },
+        state: true,
+        create_time: true,
+      },
+      where: {
+        create_time: Between(dateFrom, dateTo),
+        tribe: {
+          id_tribe: idTribu,
+        },
+        metrics: {
+          coverage: MoreThan(minCoverage),
+        },
+        state: repoStates.ENABLE,
+      }
+    })
+
+    if (!metricas) {
+      throw new NotFoundException(`La Tribu no tiene repositorios que cumplan con la cobertura necesaria`);
+    }
+
     var modelResponse: ModelResponse[] = [];
     metricas.forEach(repo => {
-      var data = JSON.parse(JSON.stringify(repo));
+      const data = JSON.parse(JSON.stringify(repo));
       let datamodel: ModelResponse = {
         id: data.id_repository,
         name: data.name,
@@ -132,13 +170,13 @@ export class RepositoriesService {
         bugs: data.metrics.bugs,
         vulnerabilities: data.metrics.vulnerabilities,
         hotspots: data.metrics.hostpot,
-        verificationState: "en espera",
+        verificationState: stateRepositoryMock,
         state: data.state,
       }
       modelResponse.push(datamodel)
     })
 
-    var response =JSON.parse(JSON.stringify(modelResponse))
+    const response = JSON.parse(JSON.stringify(modelResponse))
 
     return response
   }

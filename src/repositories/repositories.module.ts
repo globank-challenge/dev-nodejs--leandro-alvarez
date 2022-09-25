@@ -18,12 +18,22 @@ import { HttpModule, HttpService } from '@nestjs/axios';
   controllers: [RepositoriesController,RepositoriesMetricController],
   providers: [RepositoriesService,HttpModule,
     {
-      provide: 'TASKS',
+      provide: 'MockRepositories',
       useFactory: async (http: HttpService) => {
-        const tasks = await http
+        const mockRepos = await http
           .get(process.env.MOCK_API)
           .toPromise();
-        return tasks.data;
+        return mockRepos.data;
+      },
+      inject: [HttpService],
+    },
+    {
+      provide: 'MockRepositories2',
+      useFactory: async (http: HttpService) => {
+        const mockRepos = await http
+          .get(process.env.MOCK_API)
+          .toPromise();
+        return mockRepos.data;
       },
       inject: [HttpService],
     },
