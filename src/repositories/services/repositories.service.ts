@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, StreamableFile, } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Equal, Repository, MoreThan, Between } from 'typeorm';
-import fs from 'fs';
+import { HttpModule, HttpService } from '@nestjs/axios';
+import * as fs from 'fs';
 import { parse } from 'json2csv';
 
 
@@ -9,6 +10,7 @@ import { Repositories, repoStates, registerStates } from '../entities/repositori
 import { CreateRepositoryDto, UpdateRepositoryDto } from '../dtos/repositories.dto';
 
 import { TribesService } from './../../tribes/services/tribes.service'
+import { Tribes } from './../../tribes/entities/tribes.entity'
 import { json } from 'stream/consumers';
 
 
@@ -16,18 +18,9 @@ import { json } from 'stream/consumers';
 export class RepositoriesService {
   constructor(
     @InjectRepository(Repositories) private repositoriesRepo: Repository<Repositories>,
-    @Inject('MockRepositories') private mockRepos: any[],
-    @Inject('MockRepositories2') private mockRepos2: any[],
     private tribesService: TribesService,
-
+    private readonly httpService: HttpService
   ) { }
-
-
-
-  getApiRepositorios(): string {
-    var res = this.mockRepos
-    return `${res}`;
-  }
 
 
   async create(data: CreateRepositoryDto) {
@@ -81,9 +74,8 @@ export class RepositoriesService {
     return this.repositoriesRepo.delete(id);
   }
 
-
-  async getMetrics(idTribu: number) {
-
+  async getVerificationState(idRepository: number) {
+    let naturalLanguageState: string = 'No encontrado'
     const verificationCode = [
       //{ code: 0, state: "No encontrado" },
       { code: 604, state: "Verificado" },
@@ -91,8 +83,22 @@ export class RepositoriesService {
       { code: 606, state: "Aprobado" },
     ]
 
+    try {
+      const APIMock: any = await this.httpService.get(process.env.MOCK_API).toPromise()
+      const dataMock: any = APIMock.data
+      const searchMock: number = dataMock?.find((repo) => repo.id == idRepository)?.state || 0
+      naturalLanguageState = verificationCode.find((code) => code.code == searchMock)?.state || "No encontrado"
+    } catch (error) {
+      naturalLanguageState = 'NO_API'
+    }
+
+    return naturalLanguageState;
+  }
+
+  async getMetrics(idTribu: number) {
+
     interface ModelResponse {
-      id: string;
+      id: number;
       name: string;
       tribe: string;
       organization: string;
@@ -105,14 +111,17 @@ export class RepositoriesService {
       state: string;
     }
 
+    const stateCode = [
+      //{ code: 0, state: "No encontrado" },
+      { code: "E", state: "Enable" },
+      { code: "D", state: "Disable" },
+      { code: "A", state: "Archived" },
+    ]
+
     const minCoverage: number = 75;
     const thisYear: number = new Date().getFullYear()
-    const dateFrom = new Date(thisYear, 1, 1)
-    const dateTo = new Date(thisYear, 12, 31)
-
-    const dataMock: any = JSON.parse(JSON.stringify(this.mockRepos));
-    const searchMock: number = dataMock?.find((repo) => repo.id == idTribu)?.state || 0
-    const stateRepositoryMock: string = verificationCode.find((code) => code.code == searchMock)?.state || "No encontrado"
+    const dateFrom: Date = new Date(thisYear, 1, 1)
+    const dateTo: Date = new Date(thisYear, 12, 31)
 
 
     const tribe = await this.tribesService.findOne(idTribu);
@@ -158,26 +167,45 @@ export class RepositoriesService {
     }
 
     var modelResponse: ModelResponse[] = [];
-    metricas.forEach(repo => {
-      const data = JSON.parse(JSON.stringify(repo));
-      let datamodel: ModelResponse = {
-        id: data.id_repository,
-        name: data.name,
-        tribe: data.tribe.name,
-        organization: data.tribe.organization.name,
-        coverage: data.metrics.coverage,
-        codeSmells: data.metrics.code_smells,
-        bugs: data.metrics.bugs,
-        vulnerabilities: data.metrics.vulnerabilities,
-        hotspots: data.metrics.hostpot,
-        verificationState: stateRepositoryMock,
-        state: data.state,
-      }
-      modelResponse.push(datamodel)
-    })
+    await Promise.all(
+      metricas.map(async repo => {
+        const data = JSON.parse(JSON.stringify(repo));
+        const stateRepo = await this.getVerificationState(data.id_repository)
+        let datamodel: ModelResponse = {
+          id: data.id_repository,
+          name: data.name,
+          tribe: data.tribe.name,
+          organization: data.tribe.organization.name,
+          coverage: `${data.metrics.coverage}%`,
+          codeSmells: +data.metrics.code_smells,
+          bugs: +data.metrics.bugs,
+          vulnerabilities: +data.metrics.vulnerabilities,
+          hotspots: +data.metrics.hostpot,
+          verificationState: stateRepo,
+          state: stateCode.find((code) => code.code == data.state)?.state,
+        }
+        modelResponse.push(datamodel)
+      }))
 
     const response = JSON.parse(JSON.stringify(modelResponse))
-
     return response
   }
+
+  async generateReport(idTribu: number) {
+
+    const fileReport: string = 'report.csv';
+    const logger = fs.createWriteStream('report.csv', { flags: 'w' })
+
+    logger.write(`Tribu ID: ${idTribu}\n`)
+    logger.write(`id,Nombre Repositorio,Tribu,Organización,coverage,codeSmells,bugs,vulnerabilities,hotspots,verificationState,state\n`)
+
+    const metrics: any = await this.getMetrics(idTribu) || [];
+    metrics.map((item) => {
+      logger.write(`${item.id},${item.name},${item.tribe},${item.organization},${item.coverage},${item.codeSmells},${item.bugs},${item.vulnerabilities},${item.hotspots},${item.verificationState},${item.state}\n`)
+    })
+
+    return fileReport
+
+  }
+
 }

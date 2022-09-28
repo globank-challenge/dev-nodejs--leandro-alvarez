@@ -10,6 +10,8 @@ import {
 } from '@nestjs/common';
 
 import { createReadStream } from 'fs';
+
+
 import { join } from 'path';
 import type { Response } from 'express';
 
@@ -21,9 +23,10 @@ import { ApiTags } from '@nestjs/swagger';
 export class RepositoriesMetricController {
   constructor(private repositoriesService: RepositoriesService) { }
 
-  @Get('report')
-  getFile(@Res({ passthrough: true }) res: Response): StreamableFile {
-    const file = createReadStream(join(process.cwd(), 'test.csv'));
+  @Get('report/:tribuId')
+  async getFile(@Param('tribuId', ParseIntPipe) tribuId: number,@Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
+    await this.repositoriesService.generateReport(tribuId)
+    const file = createReadStream(join(process.cwd(), 'report.csv'));
     res.set({
       'Content-Type': 'text/plain',
       'Content-Disposition': 'attachment; filename="report.csv"',
@@ -31,9 +34,9 @@ export class RepositoriesMetricController {
     return new StreamableFile(file);
   }
 
-   @Get(':tribuId')
+  @Get(':tribuId')
   @HttpCode(HttpStatus.ACCEPTED)
-  getOne(@Param('tribuId', ParseIntPipe) tribuId: number) {
+  getMetrics(@Param('tribuId', ParseIntPipe) tribuId: number) {
     return this.repositoriesService.getMetrics(tribuId);
   }
 }

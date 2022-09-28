@@ -36,9 +36,7 @@ export class TribesService {
       where:{id_tribe: id_tribe},
       relations:['organization','repositories']
     });
-    if (!tribe) {
-      throw new NotFoundException(`Tribe #${id_tribe} not found`);
-    }
+
     return tribe;
   }
 

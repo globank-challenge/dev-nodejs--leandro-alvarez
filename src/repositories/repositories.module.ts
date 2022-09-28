@@ -1,4 +1,4 @@
-import { Module  } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { RepositoriesController } from './controllers/repositories.controller';
@@ -7,6 +7,7 @@ import { RepositoriesMetricController } from './controllers/repositoriesMetrics.
 import { RepositoriesService } from './services/repositories.service';
 import { Repositories } from './entities/repositories.entity';
 import { TribesModule } from './../tribes/tribes.module'
+import { Tribes } from './../tribes/entities/tribes.entity'
 import { MetricsModule } from './../metrics/metrics.module'
 import { HttpModule, HttpService } from '@nestjs/axios';
 
@@ -14,30 +15,9 @@ import { HttpModule, HttpService } from '@nestjs/axios';
 
 
 @Module({
-  imports: [HttpModule,TribesModule,TypeOrmModule.forFeature([Repositories])],
-  controllers: [RepositoriesController,RepositoriesMetricController],
-  providers: [RepositoriesService,HttpModule,
-    {
-      provide: 'MockRepositories',
-      useFactory: async (http: HttpService) => {
-        const mockRepos = await http
-          .get(process.env.MOCK_API)
-          .toPromise();
-        return mockRepos.data;
-      },
-      inject: [HttpService],
-    },
-    {
-      provide: 'MockRepositories2',
-      useFactory: async (http: HttpService) => {
-        const mockRepos = await http
-          .get(process.env.MOCK_API)
-          .toPromise();
-        return mockRepos.data;
-      },
-      inject: [HttpService],
-    },
-  ],
+  imports: [HttpModule, TribesModule, TypeOrmModule.forFeature([Repositories, Tribes])],
+  controllers: [RepositoriesController, RepositoriesMetricController],
+  providers: [RepositoriesService, HttpModule],
   exports: [RepositoriesService]
 })
-export class RepositoriesModule {}
+export class RepositoriesModule { }

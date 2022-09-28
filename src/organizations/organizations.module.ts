@@ -5,9 +5,10 @@ import { OrganizationsController } from './controllers/organizations.controller'
 import { OrganizationsService } from './services/organizations.service';
 import { Organization } from './entities/organizations.entity';
 
+import { Tribes } from '../tribes/entities/tribes.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Organization])],
+  imports: [TypeOrmModule.forFeature([Organization,Tribes])],
   controllers: [OrganizationsController],
   providers: [OrganizationsService],
   exports: [OrganizationsService]
